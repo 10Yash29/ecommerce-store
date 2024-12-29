@@ -7,28 +7,24 @@ import Gallery from "@/components/gallery";
 import ProductList from "@/components/productList";
 import Info from "@/components/info";
 
-// Let Next.js handle the page props; just inline the type for `params`
 export const revalidate = 0;
 
-export default async function ProductPage({
-                                              params,
-                                          }: {
-    params: { productId: string };
-}) {
+// Using `any` ensures we don't collide with Next's internal PageProps definition
+export default async function ProductPage({ params }: any) {
     // 1. Fetch the main product by ID
     const product = await getProduct(params.productId);
 
-    // 2. Fetch related/suggested products (e.g., same category)
+    // 2. Fetch related/suggested products
     const suggestedProducts = await getProducts({
         categoryId: product?.category?.id,
     });
 
     // 3. Handle the not-found case
     if (!product) {
-        return null; // or render some "Not Found" component
+        return null;
     }
 
-    // 4. Render the layout
+    // 4. Render your layout
     return (
         <div className="bg-white">
             <Container>
