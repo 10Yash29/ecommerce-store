@@ -8,7 +8,7 @@ import Filter from "./components/filter";
 import ProductCard from "@/components/ProductCard";
 import { Products } from "@/types";
 
-// Ensure revalidation
+
 export const revalidate = 0;
 
 interface CategoryPageProps {
@@ -23,10 +23,7 @@ const CategoryPage = async ({
                                 params,
                                 searchParams,
                             }: CategoryPageProps) => {
-    // Await params if it's a Promise
     const { categoryId } = await params;
-
-    // Fetch data
     const products = await getProducts({
         categoryId,
         colorId: searchParams.colorId || undefined,
