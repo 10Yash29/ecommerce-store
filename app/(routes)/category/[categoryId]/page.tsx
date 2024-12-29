@@ -12,11 +12,9 @@ import { Products } from "@/types";
 export const revalidate = 0;
 
 interface CategoryPageProps {
-    params: {
-        categoryId: string;
-    };
+    params: Promise<{ categoryId: string }>;
     searchParams: {
-        colorId?: string; // Use optional chaining if these are not always present
+        colorId?: string;
         sizeId?: string;
     };
 }
@@ -25,16 +23,19 @@ const CategoryPage = async ({
                                 params,
                                 searchParams,
                             }: CategoryPageProps) => {
+    // Await params if it's a Promise
+    const { categoryId } = await params;
+
     // Fetch data
     const products = await getProducts({
-        categoryId: params.categoryId,
+        categoryId,
         colorId: searchParams.colorId || undefined,
         sizeId: searchParams.sizeId || undefined,
     });
 
     const sizes = await getSizes();
     const colors = await getColors();
-    const category = await getCategory(params.categoryId);
+    const category = await getCategory(categoryId);
 
     return (
         <div className="bg-white">
