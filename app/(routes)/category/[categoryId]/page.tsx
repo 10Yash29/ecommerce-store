@@ -15,10 +15,7 @@ export default async function CategoryPage({
                                                searchParams,
                                            }: {
     params: { categoryId: string };
-    searchParams: {
-        colorId?: string;
-        sizeId?: string;
-    };
+    searchParams: { colorId?: string; sizeId?: string };
 }) {
     const products = await getProducts({
         categoryId: params.categoryId,
@@ -33,15 +30,18 @@ export default async function CategoryPage({
     return (
         <div className="bg-white">
             <Container>
+                {/* Billboard/hero section */}
                 <Billboard data={category.billboard} />
+
                 <div className="px-4 sm:px-6 lg:px-8 pb-24">
                     <div className="lg:grid lg:grid-cols-5 lg:gap-x-8">
-                        {/* Filters */}
+                        {/* Filters in the left column */}
                         <div className="hidden lg:block">
                             <Filter data={sizes} valueKey="sizeId" name="Sizes" />
                             <Filter data={colors} valueKey="colorId" name="Colors" />
                         </div>
-                        {/* Products */}
+
+                        {/* Products in the right column */}
                         <div className="mt-6 lg:col-span-4 lg:mt-0">
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                                 {products?.map((product: Products) => (
