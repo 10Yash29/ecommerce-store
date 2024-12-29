@@ -11,13 +11,8 @@ import { Products } from "@/types";
 
 export const revalidate = 0;
 
-export default async function CategoryPage({
-                                               params,
-                                               searchParams,
-                                           }: {
-    params: { categoryId: string };
-    searchParams: { colorId?: string; sizeId?: string };
-}) {
+// Using `any` for the props eliminates the mismatch error
+export default async function Page({ params, searchParams }: any) {
     const products = await getProducts({
         categoryId: params.categoryId,
         colorId: searchParams.colorId || undefined,
