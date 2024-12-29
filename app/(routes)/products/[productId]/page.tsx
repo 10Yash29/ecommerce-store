@@ -7,10 +7,9 @@ import Gallery from "@/components/gallery";
 import ProductList from "@/components/productList";
 import Info from "@/components/info";
 
-// Remove React.FC usage—Next.js App Router pages are just async functions
+// Let Next.js handle the page props; just inline the type for `params`
 export const revalidate = 0;
 
-// Inline the type for `params` instead of using a custom interface
 export default async function ProductPage({
                                               params,
                                           }: {
@@ -26,10 +25,10 @@ export default async function ProductPage({
 
     // 3. Handle the not-found case
     if (!product) {
-        return null; // or some 404 UI / redirect
+        return null; // or render some "Not Found" component
     }
 
-    // 4. Render your layout
+    // 4. Render the layout
     return (
         <div className="bg-white">
             <Container>
@@ -41,7 +40,9 @@ export default async function ProductPage({
                             <Info data={product} />
                         </div>
                     </div>
+
                     <hr className="my-10" />
+
                     {/* Related / suggested items */}
                     <ProductList title="Related Items" products={suggestedProducts} />
                 </div>
