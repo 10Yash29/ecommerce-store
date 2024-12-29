@@ -8,13 +8,15 @@ import Filter from "./components/filter";
 import ProductCard from "@/components/ProductCard";
 import { Products } from "@/types";
 
-
+// Ensure revalidation
 export const revalidate = 0;
 
 interface CategoryPageProps {
-    params: Promise<{ categoryId: string }>;
+    params: {
+        categoryId: string;
+    };
     searchParams: {
-        colorId?: string;
+        colorId?: string; // Use optional chaining if these are not always present
         sizeId?: string;
     };
 }
@@ -23,19 +25,16 @@ const CategoryPage = async ({
                                 params,
                                 searchParams,
                             }: CategoryPageProps) => {
-
-    const { categoryId } = await params;
-
     // Fetch data
     const products = await getProducts({
-        categoryId,
+        categoryId: params.categoryId,
         colorId: searchParams.colorId || undefined,
         sizeId: searchParams.sizeId || undefined,
     });
 
     const sizes = await getSizes();
     const colors = await getColors();
-    const category = await getCategory(categoryId);
+    const category = await getCategory(params.categoryId);
 
     return (
         <div className="bg-white">
