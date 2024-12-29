@@ -1,5 +1,4 @@
 import { ClerkProvider } from "@clerk/nextjs";
-import type { Metadata } from "next";
 import { Urbanist } from "next/font/google";
 import "./globals.css";
 import React from "react";
@@ -10,11 +9,6 @@ import ToastProvider from "@/providers/toast-provider";
 
 const font = Urbanist({ subsets: ["latin"] });
 
-export const metadata: Metadata = {
-    title: "Store",
-    description: "Store",
-};
-
 export default function RootLayout({
                                        children,
                                    }: Readonly<{
@@ -22,6 +16,11 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
+        <head>
+            <link rel="icon" href="/footy.svg" type="image/x-icon" />
+            <title>Footy Trends</title>
+            <meta name="description" content="Footy Trends - Shop the latest football merchandise and jerseys from top clubs!" />
+        </head>
         <body className={font.className}>
         <ClerkProvider
             afterSignOutUrl="/"

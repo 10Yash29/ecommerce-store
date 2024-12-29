@@ -1,5 +1,3 @@
-// app/(routes)/category/[categoryId]/page.tsx
-
 import getProducts from "@/actions/get-products";
 import getSizes from "@/actions/get-sizes";
 import getColors from "@/actions/get-colors";
@@ -12,7 +10,6 @@ import { Products } from "@/types";
 
 export const revalidate = 0;
 
-// Using `any` for the props eliminates the mismatch error with Next's PageProps
 export default async function Page({ params, searchParams }: any) {
     const products = await getProducts({
         categoryId: params.categoryId,
@@ -30,14 +27,12 @@ export default async function Page({ params, searchParams }: any) {
                 <Billboard data={category.billboard} />
                 <div className="px-4 sm:px-6 lg:px-8 pb-24">
                     <div className="lg:grid lg:grid-cols-5 lg:gap-x-8">
-                        {/* Sidebar filters */}
                         <div className="hidden lg:block">
                             <Filter data={sizes} valueKey="sizeId" name="Sizes" />
                             <Filter data={colors} valueKey="colorId" name="Colors" />
                         </div>
-                        {/* Product grid */}
                         <div className="mt-6 lg:col-span-4 lg:mt-0">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                                 {products?.map((product: Products) => (
                                     <ProductCard data={product} key={product.id} />
                                 ))}
