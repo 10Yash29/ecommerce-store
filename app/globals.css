@@ -67,3 +67,6 @@
     @apply bg-background text-foreground;
   }
 }
+body, button, input, textarea {
+  font-family: "Urbanist", Arial, sans-serif;
+}
