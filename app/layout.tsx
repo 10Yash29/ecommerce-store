@@ -7,7 +7,10 @@ import Navbar from "@/components/Navbar";
 import ModalProvider from "@/providers/modal-provider";
 import ToastProvider from "@/providers/toast-provider";
 
-const font = Urbanist({ subsets: ["latin"] });
+const font = Urbanist({
+    subsets: ["latin"],
+    weight: ["400", "500", "700"], // Specify all weights used
+});
 
 export default function RootLayout({
                                        children,
@@ -15,13 +18,13 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en">
+        <html lang="en" className={font.className}>
         <head>
             <link rel="icon" href="/footy.svg" type="image/x-icon" />
             <title>Footy Trends</title>
             <meta name="description" content="Footy Trends - Shop the latest football merchandise and jerseys from top clubs!" />
         </head>
-        <body className={font.className}>
+        <body>
         <ClerkProvider
             afterSignOutUrl="/"
             publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
