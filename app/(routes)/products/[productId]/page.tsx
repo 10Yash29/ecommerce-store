@@ -1,5 +1,3 @@
-// app/(routes)/products/[productId]/page.tsx
-
 import getProduct from "@/actions/get-product";
 import getProducts from "@/actions/get-products";
 import Container from "@/components/ui/container";
@@ -9,22 +7,52 @@ import Info from "@/components/info";
 
 export const revalidate = 0;
 
-// Using `any` ensures we don't collide with Next's internal PageProps definition
-export default async function ProductPage({ params }: any) {
-    // 1. Fetch the main product by ID
-    const product = await getProduct(params.productId);
+export default async function ProductPage({ params }: { params: { productId?: string } }) {
+    // Log params for debugging
+    console.log("Params:", params);
 
-    // 2. Fetch related/suggested products
-    const suggestedProducts = await getProducts({
-        categoryId: product?.category?.id,
-    });
-
-    // 3. Handle the not-found case
-    if (!product) {
-        return null;
+    // Validate params and productId
+    if (!params?.productId) {
+        return (
+            <div className="flex justify-center items-center h-screen">
+                <p className="text-xl font-bold">Invalid or missing Product ID.</p>
+            </div>
+        );
     }
 
-    // 4. Render your layout
+    let product;
+    try {
+        // Fetch the product details
+        product = await getProduct(params.productId);
+    } catch (error) {
+        console.error("Error fetching product:", error);
+        return (
+            <div className="flex justify-center items-center h-screen">
+                <p className="text-xl font-bold">Error loading product details.</p>
+            </div>
+        );
+    }
+
+    // Handle product not found
+    if (!product) {
+        return (
+            <div className="flex justify-center items-center h-screen">
+                <p className="text-xl font-bold">Product not found.</p>
+            </div>
+        );
+    }
+
+    let suggestedProducts = [];
+    try {
+        // Fetch related/suggested products
+        if (product.category?.id) {
+            suggestedProducts = await getProducts({ categoryId: product.category.id });
+        }
+    } catch (error) {
+        console.error("Error fetching suggested products:", error);
+    }
+
+    // Render the product details and related products
     return (
         <div className="bg-white">
             <Container>
@@ -40,7 +68,11 @@ export default async function ProductPage({ params }: any) {
                     <hr className="my-10" />
 
                     {/* Related / suggested items */}
-                    <ProductList title="Related Items" products={suggestedProducts} />
+                    {suggestedProducts.length > 0 ? (
+                        <ProductList title="Related Items" products={suggestedProducts} />
+                    ) : (
+                        <p className="text-center text-gray-500">No related items available.</p>
+                    )}
                 </div>
             </Container>
         </div>
