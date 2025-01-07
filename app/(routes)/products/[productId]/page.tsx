@@ -7,11 +7,11 @@ import Info from "@/components/info";
 
 export const revalidate = 0;
 
-export default async function ProductPage({ params }: { params: { productId?: string } }) {
-    // Log params for debugging
+export default async function ProductPage({ params: rawParams }: { params: Promise<{ productId?: string }> }) {
+    const params = await rawParams;
+
     console.log("Params:", params);
 
-    // Validate params and productId
     if (!params?.productId) {
         return (
             <div className="flex justify-center items-center h-screen">
