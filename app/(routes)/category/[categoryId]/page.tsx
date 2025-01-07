@@ -10,16 +10,25 @@ import { Products } from "@/types";
 
 export const revalidate = 0;
 
-export default async function Page({ params, searchParams }: any) {
+export default async function Page({
+                                       params,
+                                       searchParams,
+                                   }: {
+    params: Promise<{ categoryId: string }>;
+    searchParams: Promise<{ colorId?: string; sizeId?: string }>;
+}) {
+    const { categoryId } = await params;
+    const { colorId, sizeId } = await searchParams;
+
     const products = await getProducts({
-        categoryId: params.categoryId,
-        colorId: searchParams.colorId || undefined,
-        sizeId: searchParams.sizeId || undefined,
+        categoryId,
+        colorId: colorId || undefined,
+        sizeId: sizeId || undefined,
     });
 
     const sizes = await getSizes();
     const colors = await getColors();
-    const category = await getCategory(params.categoryId);
+    const category = await getCategory(categoryId);
 
     return (
         <div className="bg-white">
