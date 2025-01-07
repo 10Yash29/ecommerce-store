@@ -38,15 +38,14 @@ const ProductCard = ({ data }: ProductCardProps) => {
             onClick={HandleClick}
             className="bg-white group space-y-4 cursor-pointer rounded-xl border p-3 sm:p-5"
         >
-            {/* Ensure the image wrapper has a white background */}
+            {/* Product Image Container with White Background */}
             <div className="aspect-square bg-white rounded-xl relative">
                 <Image
                     src={data?.images?.[0]?.url}
-                    alt="Product Image"
+                    alt={"Product Image"}
                     fill
-                    className="aspect-square object-cover rounded-md"
+                    className={"aspect-square object-cover rounded-md"}
                 />
-                {/* Hover actions */}
                 <div className="opacity-0 group-hover:opacity-100 transition absolute px-6 bottom-5 w-full">
                     <div className="flex gap-6 justify-center">
                         <IconButton
@@ -60,18 +59,21 @@ const ProductCard = ({ data }: ProductCardProps) => {
                     </div>
                 </div>
             </div>
-            {/* Product Information */}
+
+            {/* Product Name and Category */}
             <div>
                 <p className="font-semibold text-lg sm:text-xl">{data.name}</p>
                 <p className="text-sm text-gray-500 sm:text-base">
                     {data.category?.name}
                 </p>
             </div>
-            {/* Price */}
+
+            {/* Product Price */}
             <div className="flex items-center justify-between">
                 <Currency value={data?.price} />
             </div>
         </div>
     );
 };
+
 export default ProductCard;

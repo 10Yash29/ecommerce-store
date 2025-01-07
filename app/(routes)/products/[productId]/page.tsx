@@ -7,52 +7,22 @@ import Info from "@/components/info";
 
 export const revalidate = 0;
 
-export default async function ProductPage({ params }: { params: { productId?: string } }) {
-    // Log params for debugging
-    console.log("Params:", params);
+// Using `any` ensures we don't collide with Next's internal PageProps definition
+export default async function ProductPage({ params }: any) {
+    // 1. Fetch the main product by ID
+    const product = await getProduct(params.productId);
 
-    // Validate params and productId
-    if (!params?.productId) {
-        return (
-            <div className="flex justify-center items-center h-screen">
-                <p className="text-xl font-bold">Invalid or missing Product ID.</p>
-            </div>
-        );
-    }
+    // 2. Fetch related/suggested products
+    const suggestedProducts = await getProducts({
+        categoryId: product?.category?.id,
+    });
 
-    let product;
-    try {
-        // Fetch the product details
-        product = await getProduct(params.productId);
-    } catch (error) {
-        console.error("Error fetching product:", error);
-        return (
-            <div className="flex justify-center items-center h-screen">
-                <p className="text-xl font-bold">Error loading product details.</p>
-            </div>
-        );
-    }
-
-    // Handle product not found
+    // 3. Handle the not-found case
     if (!product) {
-        return (
-            <div className="flex justify-center items-center h-screen">
-                <p className="text-xl font-bold">Product not found.</p>
-            </div>
-        );
+        return null;
     }
 
-    let suggestedProducts = [];
-    try {
-        // Fetch related/suggested products
-        if (product.category?.id) {
-            suggestedProducts = await getProducts({ categoryId: product.category.id });
-        }
-    } catch (error) {
-        console.error("Error fetching suggested products:", error);
-    }
-
-    // Render the product details and related products
+    // 4. Render your layout
     return (
         <div className="bg-white">
             <Container>
@@ -64,15 +34,8 @@ export default async function ProductPage({ params }: { params: { productId?: st
                             <Info data={product} />
                         </div>
                     </div>
-
                     <hr className="my-10" />
-
-                    {/* Related / suggested items */}
-                    {suggestedProducts.length > 0 ? (
-                        <ProductList title="Related Items" products={suggestedProducts} />
-                    ) : (
-                        <p className="text-center text-gray-500">No related items available.</p>
-                    )}
+                    <ProductList title="Related Items" products={suggestedProducts} />
                 </div>
             </Container>
         </div>
