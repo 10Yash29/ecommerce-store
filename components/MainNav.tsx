@@ -1,4 +1,4 @@
-'use client';
+'use client'
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
@@ -21,8 +21,9 @@ const MainNav = ({ data }: MainNavProps) => {
 
     return (
         <nav className="mx-6 flex items-center justify-between">
+            {/* Mobile Toggle */}
             <button
-                className="lg:hidden"
+                className="lg:hidden focus:outline-none"
                 onClick={() => setIsOpen(!isOpen)}
                 aria-label="Toggle Menu"
             >
@@ -31,7 +32,7 @@ const MainNav = ({ data }: MainNavProps) => {
             <div
                 className={cn(
                     "flex-col lg:flex lg:flex-row lg:space-x-6",
-                    isOpen ? "flex" : "hidden"
+                    isOpen ? "flex" : "hidden lg:flex"
                 )}
             >
                 {routes.map((route) => (
@@ -39,10 +40,8 @@ const MainNav = ({ data }: MainNavProps) => {
                         key={route.href}
                         href={route.href}
                         className={cn(
-                            "text-base font-medium tracking-wide transition-all hover:text-purple-500 hover:scale-105",
-                            route.active
-                                ? "text-purple-600 font-semibold underline decoration-purple-500 underline-offset-4"
-                                : "text-gray-700"
+                            "text-base font-semibold tracking-wide transition-all hover:text-purple-500",
+                            route.active ? "text-black" : "text-gray-600"
                         )}
                     >
                         {route.label}
