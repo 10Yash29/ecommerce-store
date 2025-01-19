@@ -34,7 +34,7 @@ export default function RootLayout({
     return (
         <html lang={process.env.NEXT_PUBLIC_DEFAULT_LANG || "en"} className={font.className}>
         <head>
-            <link rel="icon" href="/footy.svg" type="image/x-icon" />
+            <link rel="icon" href="/footy.svg" type="image/x-icon" className={'rounded-full'} />
             <title>Footy Trends</title>
             <meta name="description" content="Footy Trends - Shop the latest football merchandise and jerseys from top clubs!" />
             <meta property="og:title" content="Footy Trends" />
