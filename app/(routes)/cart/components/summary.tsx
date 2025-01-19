@@ -1,45 +1,49 @@
+'use client';
 
-'use client'
-
-import { Button } from '@/components/ui/button'
-
-import axios from 'axios'
-import { useSearchParams } from 'next/navigation'
-import { useEffect } from 'react'
-import toast from 'react-hot-toast'
-import useCart from "@/hooks/use-cart";
-import Currency from "@/components/ui/currency";
+import { useAuth } from '@clerk/nextjs';
+import { Button } from '@/components/ui/button';
+import axios from 'axios';
+import { useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
+import toast from 'react-hot-toast';
+import useCart from '@/hooks/use-cart';
+import Currency from '@/components/ui/currency';
 
 export const Summary = () => {
-    const searchParams = useSearchParams()
-    const items = useCart((state) => state.items)
-    const removeAll = useCart((state) => state.deleteAll)
+    const searchParams = useSearchParams();
+    const items = useCart((state) => state.items);
+    const removeAll = useCart((state) => state.deleteAll);
+    const { userId } = useAuth(); // Get userId from Clerk Auth
 
     useEffect(() => {
         if (searchParams.get('success')) {
-            toast.success('Your order has been placed!')
-            removeAll()
+            toast.success('Your order has been placed!');
+            removeAll();
         }
 
         if (searchParams.get('canceled')) {
-            toast.error('Something went wrong, please try again.')
+            toast.error('Something went wrong, please try again.');
         }
-    }, [searchParams, removeAll])
+    }, [searchParams, removeAll]);
 
-    const totalPrice = items.reduce((total, item) => {
-        return total + Number(item.price)
-    }, 0)
+    const totalPrice = items.reduce((total, item) => total + Number(item.price), 0);
 
     const onCheckout = async () => {
-        const response = await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL}/checkout`,
-            {
-                productIds: items.map((item) => item.id),
-            },
-        )
+        try {
+            const response = await axios.post(
+                `${process.env.NEXT_PUBLIC_API_URL}/checkout`,
+                {
+                    productIds: items.map((item) => item.id),
+                    userId, // Pass userId
+                }
+            );
 
-        window.location = response.data.url
-    }
+            window.location = response.data.url;
+        } catch (error) {
+            console.error(error);
+            toast.error('Failed to initiate checkout.');
+        }
+    };
 
     return (
         <div className="mt-16 rounded-lg bg-gray-50 px-4 py-6 sm:p-6 lg:col-span-5 lg:mt-0 lg:p-8">
@@ -60,5 +64,5 @@ export const Summary = () => {
                 Checkout
             </Button>
         </div>
-    )
-}
+    );
+};
