@@ -6,6 +6,7 @@ import useCart from "@/hooks/use-cart";
 import Container from "@/components/ui/container";
 import CartItem from "@/app/(routes)/cart/components/cart-item";
 import { Summary } from "@/app/(routes)/cart/components/summary";
+import RecommendedProducts from "@/components/recommended/RecommendedProducts";
 
 const Cart = () => {
     const { isSignedIn } = useAuth();
@@ -31,6 +32,7 @@ const Cart = () => {
                         </div>
                         <Summary />
                     </div>
+                    <RecommendedProducts title="You can also buy" />
                 </div>
             </Container>
         </div>
