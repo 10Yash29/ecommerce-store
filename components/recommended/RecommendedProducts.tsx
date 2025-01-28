@@ -1,4 +1,4 @@
-'use client'; // Because we use useState/useEffect
+'use client';
 
 import { useEffect, useState } from 'react';
 import { useAuth } from '@clerk/nextjs';
@@ -13,13 +13,14 @@ interface RecommendedProductsProps {
 export default function RecommendedProducts({ title = "Recommended for You", limit = 8 }: RecommendedProductsProps) {
   const [productIds, setProductIds] = useState<string[]>([]);
   const [products, setProducts] = useState<Products[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const { userId } = useAuth();
 
   useEffect(() => {
     if (!userId) return;
 
-    // Define and call an async function inside the effect
     const fetchRecommendations = async () => {
+      setIsLoading(true);
       try {
         const res = await fetch(`https://flask-recommendation.onrender.com/recommend/${userId}`);
         if (!res.ok) {
@@ -30,16 +31,19 @@ export default function RecommendedProducts({ title = "Recommended for You", lim
         setProductIds(recIds);
       } catch (err) {
         console.error("Failed to fetch recommendations:", err);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    fetchRecommendations(); // Call the async function
+    fetchRecommendations();
   }, [userId]);
 
   useEffect(() => {
     if (productIds.length === 0) return;
 
     const fetchProducts = async () => {
+      setIsLoading(true);
       try {
         const res = await fetch(`/api/productsByIds`, {
           method: 'POST',
@@ -50,14 +54,20 @@ export default function RecommendedProducts({ title = "Recommended for You", lim
         setProducts(data);
       } catch (err) {
         console.error("Failed to fetch product details:", err);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    fetchProducts(); // Call the async function
+    fetchProducts();
   }, [productIds, limit]);
 
+  if (isLoading) {
+    return <div>Loading recommendations...</div>; // Add a spinner or skeleton UI here
+  }
+
   if (products.length === 0) {
-    return null; // or some fallback
+    return <div>No recommendations available at the moment.</div>; // Friendly fallback UI
   }
 
   return (
