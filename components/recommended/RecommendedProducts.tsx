@@ -9,6 +9,7 @@ interface RecommendedProductsProps {
   title?: string;
   limit?: number;
 }
+
 export default function RecommendedProducts({ title = "Recommended for You", limit = 8 }: RecommendedProductsProps) {
   const [productIds, setProductIds] = useState<string[]>([]);
   const [products, setProducts] = useState<Products[]>([]);
@@ -17,37 +18,42 @@ export default function RecommendedProducts({ title = "Recommended for You", lim
   useEffect(() => {
     if (!userId) return;
 
-    // 1) Fetch recommended product IDs from Flask
-    fetch(`http://127.0.0.1:5000/recommend/${userId}`)
-  .then(res => {
-    if (!res.ok) {
-      throw new Error(`HTTP error! status: ${res.status}`);
-    }
-    return res.json();
-  })
-  .then(data => {
-    const recIds = data.recommendedProducts || [];
-    setProductIds(recIds);
-  })
-  .catch(err => {
-    console.error("Failed to fetch recommendations:", err);
-  });
+    // Define and call an async function inside the effect
+    const fetchRecommendations = async () => {
+      try {
+        const res = await fetch(`https://flask-recommendation.onrender.com/recommend/${userId}`);
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        const data = await res.json();
+        const recIds = data.recommendedProducts || [];
+        setProductIds(recIds);
+      } catch (err) {
+        console.error("Failed to fetch recommendations:", err);
+      }
+    };
+
+    fetchRecommendations(); // Call the async function
   }, [userId]);
 
   useEffect(() => {
     if (productIds.length === 0) return;
-    fetch(`/api/productsByIds`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ids: productIds.slice(0, limit) }),
-    })
-    .then(res => res.json())
-    .then((data: Products[]) => {
-      setProducts(data);
-    })
-    .catch(err => {
-      console.error("Failed to fetch product details:", err);
-    });
+
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch(`/api/productsByIds`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids: productIds.slice(0, limit) }),
+        });
+        const data: Products[] = await res.json();
+        setProducts(data);
+      } catch (err) {
+        console.error("Failed to fetch product details:", err);
+      }
+    };
+
+    fetchProducts(); // Call the async function
   }, [productIds, limit]);
 
   if (products.length === 0) {
