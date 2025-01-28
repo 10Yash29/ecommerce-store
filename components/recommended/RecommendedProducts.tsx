@@ -58,18 +58,15 @@ export default function RecommendedProducts({ title = "Recommended for You", lim
         setIsLoading(false);
       }
     };
-
     fetchProducts();
   }, [productIds, limit]);
 
   if (isLoading) {
     return <div>Loading recommendations...</div>; // Add a spinner or skeleton UI here
   }
-
   if (products.length === 0) {
     return <div>No recommendations available at the moment.</div>; // Friendly fallback UI
   }
-
   return (
     <div className="space-y-4 mt-8">
       <h2 className="text-2xl font-bold">{title}</h2>
