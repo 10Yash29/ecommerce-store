@@ -4,6 +4,7 @@ import MainNav from "@/components/MainNav";
 import getCategories from "@/actions/get-categories";
 import NavBarActions from "@/components/NavBarActions";
 import Image from "next/image";
+import SearchByImageButton from "@/components/SearchByImageButton";
 
 const Navbar = async () => {
     const categories = await getCategories();
@@ -29,6 +30,7 @@ const Navbar = async () => {
                         </div>
                     </Link>
                     <MainNav data={categories} />
+                    <SearchByImageButton />
                     <NavBarActions />
                 </div>
             </Container>
