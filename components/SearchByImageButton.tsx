@@ -37,7 +37,7 @@ export default function SearchByImageButton() {
 
       // If running Flask locally: "http://127.0.0.1:5000/visual-search"
       // If deployed: "https://your-flask.onrender.com/visual-search"
-      const flaskUrl = "http://127.0.0.1:5000/visual-search";
+      const flaskUrl = "https://ecommerce-recommendation-service.onrender.com/visual-search";
 
       const res = await fetch(flaskUrl, {
         method: "POST",
