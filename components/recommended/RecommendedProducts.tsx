@@ -22,7 +22,7 @@ export default function RecommendedProducts({ title = "Recommended for You", lim
     const fetchRecommendations = async () => {
       setIsLoading(true);
       try {
-        const res = await fetch(`https://ecommerce-recommendation-service.onrender.com/recommend/${userId}`);
+        const res = await fetch(`https://one0yash29-ecommerce-recommendation.onrender.com/recommend/${userId}`);
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`);
         }
