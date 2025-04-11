@@ -54,10 +54,10 @@ export default function SearchByImageButton() {
       const formData = new FormData();
       formData.append("image", selectedFile);
 
-      const res = await fetch("https://one0yash29-ecommerce-recommendation-cj62.onrender.com", {
-        method: "POST",
-        body: formData,
-      });
+      const res = await fetch("http://localhost:5002/visual-search", {
+  method: "POST",
+  body: formData,
+});
 
 
       if (!res.ok) {
