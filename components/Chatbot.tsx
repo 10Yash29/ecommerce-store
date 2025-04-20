@@ -9,7 +9,7 @@ type Message = {
 };
 
 const API_URL =
-  process.env.NEXT_PUBLIC_CHATBOT_API ?? "http://127.0.0.1:8000/chatbot";
+  process.env.NEXT_PUBLIC_CHATBOT_API ?? "https://chatbot-service-26z8.onrender.com";
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
