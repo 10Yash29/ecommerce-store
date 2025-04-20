@@ -1,98 +1,114 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
-import { MessageCircle, X, Send } from 'lucide-react';
+import { useState, useEffect, useRef, KeyboardEvent } from "react";
+import { MessageCircle, X, Send } from "lucide-react";
 
 type Message = {
-  sender: 'user' | 'bot';
+  sender: "user" | "bot";
   text: string;
 };
+
+const API_URL =
+  process.env.NEXT_PUBLIC_CHATBOT_API ?? "http://127.0.0.1:8000/chatbot";
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { sender: 'bot', text: 'Hi! How can I help you with your football kit shopping today?' }
+    {
+      sender: "bot",
+      text: "Hi! How can I help you with your football kit shopping today?",
+    },
   ]);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom on new messages
+  // auto‑scroll to the latest message
   useEffect(() => {
-    if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
-    }
+    chatContainerRef.current?.scrollTo({
+      top: chatContainerRef.current.scrollHeight,
+      behavior: "smooth",
+    });
   }, [messages]);
 
-  const handleSend = async () => {
-    if (!input.trim()) return;
+  async function handleSend() {
+    const trimmed = input.trim();
+    if (!trimmed || isLoading) return;
 
-    const trimmedInput = input.trim();
-    // Add the user message to state
-    const userMessage = { sender: 'user', text: trimmedInput };
+    // add user message
+    const userMessage: Message = { sender: "user", text: trimmed };
     setMessages((prev) => [...prev, userMessage]);
-
-    // Clear the input and set loading
-    setInput('');
+    setInput("");
     setIsLoading(true);
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/chatbot", {
+      const res = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: trimmedInput })
+        body: JSON.stringify({ message: trimmed }),
       });
-
-      if (!res.ok) throw new Error("Failed to get response");
+      if (!res.ok) throw new Error("Chatbot API error");
 
       const data = await res.json();
-      setMessages((prev) => [...prev, { sender: 'bot', text: data.response }]);
-    } catch (error) {
-      console.error("Chatbot error:", error);
       setMessages((prev) => [
         ...prev,
-        { sender: 'bot', text: "Sorry, I encountered an error. Please try again." }
+        { sender: "bot", text: data.response ?? "Sorry, no response." },
+      ]);
+    } catch (err) {
+      console.error(err);
+      setMessages((prev) => [
+        ...prev,
+        { sender: "bot", text: "Sorry, something went wrong. Please try again." },
       ]);
     } finally {
       setIsLoading(false);
     }
-  };
+  }
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    await handleSend();
-  };
+  function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSend();
+    }
+  }
 
   return (
     <div className="fixed bottom-4 right-4 z-50">
+      {/* FAB button */}
       {!isOpen && (
         <button
-          onClick={() => setIsOpen(true)}
-          className="bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition"
           aria-label="Open chat"
+          onClick={() => setIsOpen(true)}
+          className="rounded-full bg-blue-600 p-4 text-white shadow-lg transition hover:bg-blue-700"
         >
           <MessageCircle />
         </button>
       )}
 
+      {/* Chat window */}
       {isOpen && (
-        <div className="bg-white rounded-lg shadow-xl w-80 h-96 flex flex-col">
-          <div className="p-4 bg-blue-600 text-white rounded-t-lg flex justify-between items-center">
+        <div className="flex h-96 w-80 flex-col rounded-lg bg-white shadow-xl">
+          {/* Header */}
+          <div className="flex items-center justify-between rounded-t-lg bg-blue-600 p-4 text-white">
             <h3 className="font-semibold">Chat Support</h3>
-            <button onClick={() => setIsOpen(false)} aria-label="Close chat">
+            <button aria-label="Close chat" onClick={() => setIsOpen(false)}>
               <X size={20} />
             </button>
           </div>
 
-          <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4">
-            {messages.map((msg, index) => (
+          {/* Messages */}
+          <div
+            ref={chatContainerRef}
+            className="flex-1 space-y-4 overflow-y-auto p-4"
+          >
+            {messages.map((msg, i) => (
               <div
-                key={index}
-                className={`${
-                  msg.sender === 'bot' 
-                    ? 'bg-gray-100 mr-auto' 
-                    : 'bg-blue-100 ml-auto'
-                } p-3 rounded-lg max-w-[80%]`}
+                key={i}
+                className={`max-w-[80%] rounded-lg p-3 ${
+                  msg.sender === "bot"
+                    ? "mr-auto bg-gray-100"
+                    : "ml-auto bg-blue-100"
+                }`}
               >
                 {msg.text}
               </div>
@@ -104,27 +120,32 @@ export default function Chatbot() {
             )}
           </div>
 
-          <div className="p-4 border-t">
-            <form onSubmit={handleSubmit} className="flex gap-2">
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-                placeholder="Type your question..."
-                disabled={isLoading}
-                className="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 transition"
-                aria-label="Send message"
-              >
-                <Send size={20} />
-              </button>
-            </form>
-          </div>
+          {/* Input */}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSend();
+            }}
+            className="flex gap-2 border-t p-4"
+          >
+            <input
+              type="text"
+              value={input}
+              disabled={isLoading}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Type your question..."
+              className="flex-1 rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button
+              type="submit"
+              aria-label="Send message"
+              disabled={isLoading}
+              className="rounded-lg bg-blue-600 p-2 text-white transition hover:bg-blue-700 disabled:opacity-50"
+            >
+              <Send size={20} />
+            </button>
+          </form>
         </div>
       )}
     </div>
