@@ -6,6 +6,7 @@ import ModalProvider from "@/providers/modal-provider";
 import ToastProvider from "@/providers/toast-provider";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/footer";
+import Chatbot from "@/components/Chatbot";
 
 const font = Urbanist({
     subsets: ["latin"],
@@ -53,6 +54,7 @@ export default function RootLayout({
                 <ToastProvider />
                 <Navbar />
                 {children}
+                <Chatbot/>
                 <Footer />
             </ClerkProvider>
 

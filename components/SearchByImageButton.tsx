@@ -260,7 +260,7 @@ export default function SearchByImageButton() {
                             {product.name}
                           </p>
                           <p className="text-sm text-muted-foreground">
-                            ${product.price}
+                            ₹{product.price}
                           </p>
                         </div>
 
