@@ -4,10 +4,6 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
-const API_URL =
-  process.env.NEXT_PUBLIC_VISUAL_SEARCH_API ??
-  "https://yash29102004-visual-search.hf.space/visual-search";
-
 async function fetchProductDetails(ids: string[]) {
   const res = await fetch("/api/productsByIds", {
     method: "POST",
@@ -27,15 +23,19 @@ export default function SearchByImageButton() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Lock scroll when modal is open
+  // ✅ Fixed cleanup type in useEffect
   useEffect(() => {
     document.body.style.overflow = showModal ? "hidden" : "";
-    return () => (document.body.style.overflow = "");
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [showModal]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setError(null);
-    if (e.target.files?.[0]) setSelectedFile(e.target.files[0]);
+    if (e.target.files?.[0]) {
+      setSelectedFile(e.target.files[0]);
+    }
   };
 
   const handleSubmit = async () => {
@@ -49,7 +49,8 @@ export default function SearchByImageButton() {
       const formData = new FormData();
       formData.append("image", selectedFile);
 
-      const res = await fetch(API_URL, {
+      // ✅ Replace with your actual Hugging Face endpoint
+      const res = await fetch("https://yash29102004-visual-search.hf.space/visual-search", {
         method: "POST",
         body: formData,
       });
@@ -72,12 +73,9 @@ export default function SearchByImageButton() {
 
       const resultsWithSimilarity = products.map((product: any) => ({
         product,
-        similarity:
-          data.results.find((r: any) => r.productId === product.id)?.similarity || 0,
-        visualScore:
-          data.results.find((r: any) => r.productId === product.id)?.visualScore || 0,
-        colorScore:
-          data.results.find((r: any) => r.productId === product.id)?.colorScore || 0,
+        similarity: data.results.find((r: any) => r.productId === product.id)?.similarity || 0,
+        visualScore: data.results.find((r: any) => r.productId === product.id)?.visualScore || 0,
+        colorScore: data.results.find((r: any) => r.productId === product.id)?.colorScore || 0,
       }));
 
       setResults(resultsWithSimilarity);
@@ -91,7 +89,6 @@ export default function SearchByImageButton() {
 
   return (
     <>
-      {/* Trigger Button */}
       <button
         onClick={() => setShowModal(true)}
         className="px-4 py-2.5 rounded-full bg-primary/90 hover:bg-primary text-sm font-medium text-primary-foreground backdrop-blur-sm transition-all duration-200 ease-out hover:scale-[1.03] active:scale-95 shadow-sm hover:shadow-md"
@@ -99,11 +96,9 @@ export default function SearchByImageButton() {
         Search by Image
       </button>
 
-      {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 backdrop-blur-sm pt-20 p-4 overflow-y-auto">
           <div className="relative w-full max-w-2xl bg-popover/80 rounded-xl backdrop-blur-2xl shadow-2xl animate-scale-in max-h-[80vh] overflow-y-auto">
-            {/* Close */}
             <button
               onClick={() => setShowModal(false)}
               className="absolute top-4 right-4 p-2 rounded-full bg-popover border shadow-lg hover:scale-105 transition-transform z-50"
@@ -116,54 +111,32 @@ export default function SearchByImageButton() {
             <div className="p-6 space-y-6">
               <div className="text-center space-y-2">
                 <h2 className="text-2xl font-semibold text-foreground">Visual Search</h2>
-                <p className="text-muted-foreground text-sm">
-                  Upload an image to find similar products
-                </p>
+                <p className="text-muted-foreground text-sm">Upload an image to find similar products</p>
               </div>
 
-              {/* File Upload */}
               <label className="flex flex-col items-center justify-center w-full h-64 rounded-lg border-2 border-dashed border-border hover:border-primary transition-colors cursor-pointer bg-background/50 hover:bg-background/70 group">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
+                <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
                 <div className="flex flex-col items-center space-y-3">
                   <div className="p-4 bg-accent/50 rounded-full group-hover:bg-accent transition-colors">
-                    <svg
-                      className="w-8 h-8 text-primary"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                      />
+                    <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                   </div>
                   <div className="text-center">
                     <p className="text-sm font-medium text-foreground">
                       {selectedFile ? selectedFile.name : "Click to upload or drag and drop"}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      PNG, JPG, JPEG up to 10MB
-                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">PNG, JPG, JPEG up to 10MB</p>
                   </div>
                 </div>
               </label>
 
-              {/* Error */}
               {error && (
                 <div className="text-center py-4 text-destructive">
                   <p>{error}</p>
                 </div>
               )}
 
-              {/* Search */}
               <button
                 onClick={handleSubmit}
                 disabled={!selectedFile || isLoading}
@@ -171,11 +144,7 @@ export default function SearchByImageButton() {
               >
                 {isLoading ? (
                   <>
-                    <svg
-                      className="animate-spin w-5 h-5 text-current"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
+                    <svg className="animate-spin w-5 h-5 text-current" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path
                         className="opacity-75"
@@ -190,14 +159,13 @@ export default function SearchByImageButton() {
                 )}
               </button>
 
-              {/* Results */}
-              {results.length > 0 && (
+              {results.length > 0 ? (
                 <div className="space-y-4">
                   <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
                     Matches ({results.length})
                   </h3>
                   <div className="grid grid-cols-1 gap-4">
-                    {results.map(({ product, visualScore, colorScore }) => (
+                    {results.map(({ product, similarity, visualScore, colorScore }) => (
                       <Link
                         key={product.id}
                         href={`/products/${product.id}`}
@@ -244,6 +212,13 @@ export default function SearchByImageButton() {
                     ))}
                   </div>
                 </div>
+              ) : (
+                !isLoading &&
+                !error && (
+                  <div className="text-center py-6">
+                    <p className="text-muted-foreground">Upload an image to find matching products</p>
+                  </div>
+                )
               )}
             </div>
           </div>
