@@ -23,7 +23,6 @@ export default function SearchByImageButton() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // ✅ Fixed cleanup type in useEffect
   useEffect(() => {
     document.body.style.overflow = showModal ? "hidden" : "";
     return () => {
@@ -49,27 +48,27 @@ export default function SearchByImageButton() {
       const formData = new FormData();
       formData.append("image", selectedFile);
 
-      // ✅ Replace with your actual Hugging Face endpoint
       const res = await fetch("https://yash29102004-visual-search.hf.space/visual-search", {
         method: "POST",
         body: formData,
       });
 
+      const contentType = res.headers.get("content-type");
+      const isJson = contentType?.includes("application/json");
+
       if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || "Search failed");
+        const errorData = isJson ? await res.json() : await res.text();
+        throw new Error(isJson ? errorData.error : "Unexpected server error. Check endpoint.");
       }
 
       const data = await res.json();
 
-      if (data.results.length === 0) {
+      if (!data.results || data.results.length === 0) {
         setError("No similar products found. Try a different image.");
         return;
       }
 
-      const products = await fetchProductDetails(
-        data.results.map((r: any) => r.productId)
-      );
+      const products = await fetchProductDetails(data.results.map((r: any) => r.productId));
 
       const resultsWithSimilarity = products.map((product: any) => ({
         product,
@@ -140,7 +139,7 @@ export default function SearchByImageButton() {
               <button
                 onClick={handleSubmit}
                 disabled={!selectedFile || isLoading}
-                className="w-full py-4 px-6 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground font-medium text-sm transition-all duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:transform-none disabled:cursor-not-allowed"
+                className="w-full py-4 px-6 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground font-medium text-sm transition-all duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <>
@@ -159,7 +158,7 @@ export default function SearchByImageButton() {
                 )}
               </button>
 
-              {results.length > 0 ? (
+              {results.length > 0 && (
                 <div className="space-y-4">
                   <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
                     Matches ({results.length})
@@ -212,13 +211,6 @@ export default function SearchByImageButton() {
                     ))}
                   </div>
                 </div>
-              ) : (
-                !isLoading &&
-                !error && (
-                  <div className="text-center py-6">
-                    <p className="text-muted-foreground">Upload an image to find matching products</p>
-                  </div>
-                )
               )}
             </div>
           </div>
