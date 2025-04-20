@@ -48,7 +48,7 @@ export default function SearchByImageButton() {
       const formData = new FormData();
       formData.append("image", selectedFile);
 
-      const res = await fetch("https://yash29102004-visual-search.hf.space/visual-search", {
+      const res = await fetch("https://yash29102004-visual-search.hf.space", {
         method: "POST",
         body: formData,
       });
