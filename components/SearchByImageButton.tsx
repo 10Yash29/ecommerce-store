@@ -14,6 +14,12 @@ async function fetchProductDetails(ids: string[]) {
   return res.json();
 }
 
+// Configure your visual search API URL via env or fallback to HF Spaces.
+// In .env.local: NEXT_PUBLIC_VISUAL_SEARCH_URL="https://yash29102004-visual-search.hf.space/search"
+const VISUAL_SEARCH_URL =
+  process.env.NEXT_PUBLIC_VISUAL_SEARCH_URL ??
+  "https://yash29102004-visual-search.hf.space/search";
+
 export default function SearchByImageButton() {
   const [showModal, setShowModal] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -47,22 +53,25 @@ export default function SearchByImageButton() {
     try {
       const formData = new FormData();
       formData.append("image", selectedFile);
+      // Optional: formData.append("top_k", "5");
 
-      const res = await fetch("https://yash29102004-visual-search.hf.space/visual-search", {
+      const res = await fetch(VISUAL_SEARCH_URL, {
         method: "POST",
         body: formData,
       });
 
-      const contentType = res.headers.get("content-type");
-      const isJson = contentType?.includes("application/json");
+      const contentType = res.headers.get("content-type") || "";
+      const isJson = contentType.includes("application/json");
 
       if (!res.ok) {
         const errorData = isJson ? await res.json() : await res.text();
-        throw new Error(isJson ? errorData.error : "Unexpected server error. Check endpoint.");
+        const msg = isJson && errorData?.error
+          ? errorData.error
+          : `Unexpected server error (${res.status}). Check endpoint.`;
+        throw new Error(msg);
       }
 
-      const data = await res.json();
-
+      const data = isJson ? await res.json() : {};
       if (!data.results || data.results.length === 0) {
         setError("No similar products found. Try a different image.");
         return;
@@ -70,11 +79,21 @@ export default function SearchByImageButton() {
 
       const products = await fetchProductDetails(data.results.map((r: any) => r.productId));
 
+      // Build a quick lookup for similarity/visual/color scores from API
+      const scoreById: Record<string, { similarity: number; visualScore?: number; colorScore?: number }> = {};
+      for (const r of data.results) {
+        scoreById[r.productId] = {
+          similarity: r.similarity ?? 0,
+          visualScore: r.visualScore ?? r.similarity ?? 0,
+          colorScore: r.colorScore ?? 0,
+        };
+      }
+
       const resultsWithSimilarity = products.map((product: any) => ({
         product,
-        similarity: data.results.find((r: any) => r.productId === product.id)?.similarity || 0,
-        visualScore: data.results.find((r: any) => r.productId === product.id)?.visualScore || 0,
-        colorScore: data.results.find((r: any) => r.productId === product.id)?.colorScore || 0,
+        similarity: scoreById[product.id]?.similarity ?? 0,
+        visualScore: scoreById[product.id]?.visualScore ?? 0,
+        colorScore: scoreById[product.id]?.colorScore ?? 0,
       }));
 
       setResults(resultsWithSimilarity);
