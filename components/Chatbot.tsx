@@ -13,7 +13,7 @@ type Message = {
 };
 
 const API_URL =
-  process.env.NEXT_PUBLIC_CHATBOT_API ?? "https://chatbot-service-26z8.onrender.com/chatbot";
+  process.env.NEXT_PUBLIC_CHATBOT_API ?? "https://one0yash29-ecommerce-recommendation-v1nt.onrender.com/chatbot";
 
 const INITIAL_MESSAGES: Message[] = [
   {
